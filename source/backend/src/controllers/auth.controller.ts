@@ -39,7 +39,7 @@ return setJwtAuthCookie({
 export const logoutController = asyncHandler(async(req: Request, res: Response) => {
 
 return clearJwtAuthCookie(res).status(HTTPSTATUS.OK).json({
-  message: "User login successfully",
+  message: "User logout successfully",
 })
 })
 
