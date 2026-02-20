@@ -1,0 +1,83 @@
+import { Server as HTTPServer } from "http";
+import { Server, Socket } from "socket.io"
+import { Env } from "../config/env.config";
+import jwt from "jsonwebtoken"
+import { validateChatParticipant } from "../services/chat.service";
+interface AuthenticationSocket extends Socket {
+  userId?: string;
+}
+let io: Server | null = null
+
+const onlineUsers = new Map<string, string>();
+export const intializeSocket = (httpServer: HTTPServer) => {
+  io = new Server(httpServer, {
+    cors: {
+      origin: Env.FRONTEND_ORIGIN,
+      methods: ["GET", "POST"],
+      credentials: true,
+    }
+  })
+  io.use(async (socket: AuthenticationSocket, next) => {
+    try {
+      const rawCookie = socket.handshake.headers.cookie;
+
+      if (!rawCookie) return next(new Error("Unauthorized"))
+
+      const token = rawCookie?.split("=")?.[1]?.trim();
+      if (!token) return next(new Error("Unauthorized"));
+
+      const decodedToken = jwt.verify(token, Env.JWT_SECRET) as { userId: string }
+
+      socket.userId = decodedToken.userId
+      next(new Error("Internal Server Error"));
+    } catch (e) {
+
+    }
+  });
+
+  io.on("connection", (socket: AuthenticationSocket) => {
+    if (!socket.userId) {
+      socket.disconnect(true)
+      return;
+    }
+    const userId = socket.userId!;
+    const newSocketId = socket.id;
+
+    console.log("socket connected", { userId, newSocketId })
+
+    // register socket for the user
+    onlineUsers.set(userId, newSocketId);
+
+    // Broadcast online users to all sockets
+    io?.emit("online:users", Array.from(onlineUsers.keys()))
+
+    //Create personal room for user
+    socket.join(`user:${userId}`);
+
+    socket.on("chat:join", async (chatId: string, callback?: (err?: string) => void) => {
+      try {
+        await validateChatParticipant(chatId, userId);
+        socket.join(`chat:${chatId}`);
+        callback?.();
+      } catch (error) {
+        callback?.("Error joining chat")
+      }
+    }
+    )
+    socket.on("chat:leave", (chatId: string) => {
+      if (chatId) {
+        socket.leave(`chat:${chatId}`)
+        console.log(`User ${userId} left room chat:${chatId}`)
+      }
+    });
+    socket.on("disconnect", () => {
+      if (onlineUsers.get(userId) === newSocketId) {
+        if (userId) onlineUsers.delete(userId)
+        io?.emit("online:users", Array.from(onlineUsers.keys()));
+        console.log("socket disconnected", {
+          userId, newSocketId,
+        })
+      }
+    })
+  })
+}
