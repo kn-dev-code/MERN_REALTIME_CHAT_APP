@@ -5,7 +5,7 @@ const SingleChat = () => {
     <div>
       
     </div>
-  )
+  ) 
 }
 
 export default SingleChat

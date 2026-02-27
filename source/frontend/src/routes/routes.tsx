@@ -1,6 +1,11 @@
+import Chat from "@/chat";
+import SingleChat from "@/chat/chatId";
+import SignIn from "@/pages/auth/sign-in";
+import SignUp from "@/pages/auth/sign-up";
+
 export const AUTH_ROUTES = {
-  SIGN_IN = "/",
-  SIGN_UP = "/sign-up",
+  SIGN_IN: "/",
+  SIGN_UP: "/sign-up",
 };
 
 
@@ -33,6 +38,7 @@ export const protectedRoutesPaths = [
 ]
 
 
-export const isAuthRoute = {pathname: string} => {
-  return Object.values(AUTH_ROUTES).includes(pahtname);
+
+export const isAuthRoute = (pathname: string) => {
+  return Object.values(AUTH_ROUTES).includes(pathname)
 }
