@@ -43,7 +43,7 @@ interface AuthStates {
        login: async (data: LoginType) => {
          set({ isLoggingIn: true });
          try {
-           const response = await API.post("/auth/login", data);
+           const response = await API.post("/login", data);
            set({ user: response.data.user });
            useSocket.getState().connectSocket();
            toast.success("Login successfully");

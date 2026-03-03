@@ -1,9 +1,9 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useTheme } from "./themeprovider";
+import { useTheme } from "./theme-provider";
 import { isUserOnline } from "@/lib/helper";
 import Logo from "./logo";
 import { PROTECTED_ROUTES } from "@/routes/routes";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
@@ -11,8 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import AvatarWithBadge from "@/components/avatarwithbadge";
+} from "./ui/dropdown-menu";
+import AvatarWithBadge from "./avatarwithbadge";
 
 const AsideBar = () => {
   const { user, logout } = useAuth();
@@ -24,7 +24,7 @@ const AsideBar = () => {
     <aside
       className="
   top-0 fixed inset-y-0
-  w-11 left-0 z-[9999]
+  w-11 left-0 z-9999
   h-svh bg-primary/85 shadow-sm"
     >
       <div
@@ -67,7 +67,7 @@ const AsideBar = () => {
               scale-0
               rotate-90
               transition-all dark:scale-100
-              dark:-rotate-0
+              dark:rotate-0
               "
             />
           </Button>
@@ -80,12 +80,12 @@ const AsideBar = () => {
                   name={user?.name || "unKnown"}
                   src={user?.avatar || ""}
                   isOnline={isOnline}
-                  className="!bg-white"
+                  className="bg-white!"
                 />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-48 rounded-lg z-[99999]"
+              className="w-48 rounded-lg z-99999"
               align="end"
             >
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
